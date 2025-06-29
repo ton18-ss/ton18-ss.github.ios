@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Yuliana - Mi Verdad</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d1117, #161b22, #21262d);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            color: #e6edf3;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #0d1117, #161b22);
+            border-radius: 16px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(56, 139, 253, 0.1),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(90deg, #21262d, #30363d);
+            padding: 16px 24px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #388bfd, transparent);
+        }
+
+        .header-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, transparent, currentColor, transparent);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .dot:hover::before { opacity: 0.3; }
+
+        .dot.red { 
+            background: linear-gradient(45deg, #ff6b6b, #ff8787);
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+        .dot.yellow { 
+            background: linear-gradient(45deg, #ffd93d, #ffed4e);
+            box-shadow: 0 0 10px rgba(255, 217, 61, 0.3);
+        }
+        .dot.green { 
+            background: linear-gradient(45deg, #51cf66, #69db7c);
+            box-shadow: 0 0 10px rgba(81, 207, 102, 0.3);
+        }
+
+        .tab {
+            background: linear-gradient(145deg, #0d1117, #161b22);
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            color: #f0f6fc;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #30363d;
+            border-bottom: none;
+            position: relative;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+
+        .tab::before {
+            content: '●';
+            color: #388bfd;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .line-numbers {
+            background: linear-gradient(145deg, #161b22, #21262d);
+            padding: 24px 0;
+            text-align: right;
+            color: #6e7681;
+            font-size: 13px;
+            line-height: 1.8;
+            min-width: 60px;
+            user-select: none;
+            border-right: 2px solid #30363d;
+            position: relative;
+        }
+
+        .line-numbers::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, #388bfd, #7c3aed, #388bfd);
+            opacity: 0.3;
+        }
+
+        .editor {
+            display: flex;
+            background: linear-gradient(145deg, #0d1117, #161b22);
+            min-height: 600px;
+        }
+
+        .code-content {
+            flex: 1;
+            padding: 24px;
+            line-height: 1.8;
+            font-size: 14px;
+            white-space: pre-wrap;
+            position: relative;
+            overflow: auto;
+        }
+
+        .code-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(56, 139, 253, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .controls {
+            padding: 24px;
+            background: linear-gradient(145deg, #21262d, #30363d);
+            border-top: 1px solid #30363d;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #238636, #2ea043);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(35, 134, 54, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(35, 134, 54, 0.5);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(145deg, #388bfd, #4dabf7);
+            box-shadow: 0 4px 15px rgba(56, 139, 253, 0.3);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 8px 25px rgba(56, 139, 253, 0.5);
+        }
+
+        /* Syntax highlighting */
+        .keyword { color: #ff7b72; font-weight: 500; }
+        .string { color: #a5d6ff; }
+        .comment { color: #8b949e; font-style: italic; }
+        .function { color: #d2a8ff; font-weight: 500; }
+        .variable { color: #79c0ff; }
+        .operator { color: #ff7b72; }
+        .number { color: #79c0ff; }
+        .special { color: #ffa657; font-weight: 500; }
+
+        .title {
+            text-align: center;
+            padding: 32px 24px;
+            background: linear-gradient(145deg, #21262d, #30363d);
+            border-bottom: 1px solid #30363d;
+            position: relative;
+        }
+
+        .title::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 50% 0%, rgba(255, 107, 214, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(56, 139, 253, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .title h1 {
+            color: #ff6bd6;
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 107, 214, 0.3);
+            position: relative;
+        }
+
+        .title p {
+            color: #79c0ff;
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .heart {
+            display: inline-block;
+            animation: heartbeat 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 214, 0.5));
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+            70% { transform: scale(1); }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #21262d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #388bfd, #7c3aed);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #4dabf7, #9775fa);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+            
+            .code-content {
+                font-size: 12px;
+                padding: 16px;
+            }
+            
+            .title h1 {
+                font-size: 24px;
+            }
+            
+            .controls {
+                padding: 16px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-dots">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <div class="tab">mi_verdad_para_yuliana.py</div>
+        </div>
+
+        <div class="title">
+            <h1>Mi Lado de la Historia <span class="heart">💕</span></h1>
+            <p>Lo que realmente pasó entre nosotros</p>
+        </div>
+
+        <div class="editor">
+            <div class="line-numbers" id="lineNumbers"></div>
+            <div class="code-content" id="codeContent"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="siguienteMensaje()">📱 Siguiente Mensaje</button>
+            <button class="btn secondary" onclick="copiarMensaje()">📋 Copiar para Yuli</button>
+            <button class="btn secondary" onclick="mensajeAleatorio()">🎲 Mensaje Random</button>
+        </div>
+    </div>
+
+    <script>
+        const mensajes = [
+            {
+                titulo: "El Malo de la Historia",
+                contenido: `<span class="comment"># Para Yuliana - Mi perspectiva real</span>
+<span class="keyword">class</span> <span class="function">MiVerdad</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="variable">self</span>):
+        <span class="variable">self.culpa</span> = <span class="string">"de ambos"</span>
+        <span class="variable">self.silencio</span> = <span class="string">"mi error"</span>
+        <span class="variable">self.amor</span> = <span class="special">True</span>
+        <span class="variable">self.confusion</span> = <span class="string">"total"</span>
+    
+    <span class="keyword">def</span> <span class="function">mi_lado_de_la_historia</span>(<span class="variable">self</span>):
+        <span class="comment"># Yuli, sé que soy el malo en tu versión</span>
+        <span class="keyword">print</span>(<span class="string">"Acepté que tú y yo cada quien por su camino"</span>)
+        <span class="keyword">print</span>(<span class="string">"Y aunque nos sobre el amor, no nos entendimos"</span>)
+        <span class="keyword">print</span>(<span class="string">"Pero no me eches toda la bronca"</span>)
+        <span class="keyword">print</span>(<span class="string">"Sabes que fue culpa de los dos"</span>)
+        
+        <span class="comment"># Mi silencio vs tu versión</span>
+        <span class="keyword">while</span> <span class="variable">me_preguntaban</span>:
+            <span class="keyword">print</span>(<span class="string">"Yo callado en la mía"</span>)
+            <span class="keyword">print</span>(<span class="string">"Ni una sola palabra dije"</span>)
+            <span class="keyword">print</span>(<span class="string">"Aunque bien que podía contar mi versión"</span>)
+            <span class="keyword">print</span>(<span class="string">"Pero preferí quedarme callado"</span>)
+    
+    <span class="keyword">def</span> <span class="function">tu_contradiccion</span>(<span class="variable">self</span>):
+        <span class="comment"># Lo que realmente me confunde</span>
+        <span class="keyword">if</span> <span class="variable">soy_el_malo</span>:
+            <span class="keyword">print</span>(<span class="string">"¿Por qué cuando tomas se te olvida que me odias?"</span>)
+            <span class="keyword">print</span>(<span class="string">"Me haces de pedo como si fueras mi novia"</span>)
+            <span class="keyword">print</span>(<span class="string">"Me mandas fotos y actúas diferente"</span>)
+            <span class="keyword">print</span>(<span class="string">"Pero cuando estás sobria, nada pasó"</span>)
+        
+        <span class="keyword">return</span> <span class="string">"no_entiendo_tu_juego"</span>
+    
+    <span class="keyword">def</span> <span class="function">mi_confusion</span>(<span class="variable">self</span>):
+        <span class="keyword">print</span>(<span class="string">"Yuli, ¿qué quieres realmente?"</span>)
+        <span class="keyword">print</span>(<span class="string">"¿Soy el malo o sigues sintiendo algo?"</span>)
+        <span class="keyword">print</span>(<span class="string">"Porque tus acciones no coinciden"</span>)
+        <span class="keyword">print</span>(<span class="string">"Con el odio que dices que me tienes"</span>)
+
+<span class="variable">mi_historia</span> = <span class="function">MiVerdad</span>()
+<span class="variable">mi_historia</span>.<span class="function">mi_lado_de_la_historia</span>()
+<span class="variable">mi_historia</span>.<span class="function">tu_contradiccion</span>()`
+            },
+            {
+                titulo: "Señales Mixtas",
+                contenido: `<span class="comment"># Lo que no entiendo de ti</span>
+<span class="keyword">def</span> <span class="function">senales_mixtas</span>():
+    <span class="variable">estado_sobria</span> = <span class="string">"me_ignoras"</span>
+    <span class="variable">estado_tomada</span> = <span class="string">"me_buscas"</span>
+    <span class="variable">mi_cabeza</span> = <span class="string">"hecha_un_lio"</span>
+    
+    <span class="comment"># El patrón que veo en ti</span>
+    <span class="keyword">while</span> <span class="special">True</span>:
+        <span class="keyword">if</span> <span class="variable">estas_sobria</span>:
+            <span class="keyword">print</span>(<span class="string">"Actúas como si no existiera"</span>)
+            <span class="keyword">print</span>(<span class="string">"Como si nada hubiera pasado"</span>)
+            <span class="keyword">print</span>(<span class="string">"Soy invisible para ti"</span>)
+        
+        <span class="keyword">elif</span> <span class="variable">estas_tomada</span>:
+            <span class="keyword">print</span>(<span class="string">"Ahí sí te acuerdas de mí"</span>)
+            <span class="keyword">print</span>(<span class="string">"Me mandas mensajes"</span>)
+            <span class="keyword">print</span>(<span class="string">"Me buscas, me necesitas"</span>)
+            <span class="keyword">print</span>(<span class="string">"¿Qué cambió en esas horas?"</span>)
+        
+        <span class="keyword">else</span>:
+            <span class="keyword">print</span>(<span class="string">"No sé qué pensar de ti"</span>)
+            <span class="keyword">break</span>
+    
+    <span class="comment"># Mi pregunta real</span>
+    <span class="keyword">print</span>(<span class="string">"¿Cuál es la Yuliana real?"</span>)
+    <span class="keyword">print</span>(<span class="string">"¿La que me odia o la que me busca?"</span>)
+    <span class="keyword">print</span>(<span class="string">"Porque yo sigo siendo el mismo"</span>)
+    <span class="keyword">print</span>(<span class="string">"El que te ama en cualquier estado"</span>)
+
+<span class="function">senales_mixtas</span>()
+<span class="keyword">print</span>(<span class="string">"Status: Confundido pero esperando 💭"</span>)`
+            },
+            {
+                titulo: "Mi Silencio",
+                contenido: `<span class="comment"># Por qué me quedé callado</span>
+<span class="keyword">import</span> <span class="variable">orgullo</span>
+<span class="keyword">from</span> <span class="variable">dolor</span> <span class="keyword">import</span> <span class="variable">silencio</span>
+
+<span class="keyword">def</span> <span class="function">por_que_calle</span>():
+    <span class="variable">razones</span> = []
+    <span class="variable">arrepentimiento</span> = <span class="number">100</span>
+    
+    <span class="comment"># Mis razones para callar</span>
+    <span class="variable">razones</span>.<span class="function">append</span>(<span class="string">"No quería lastimarte más"</span>)
+    <span class="variable">razones</span>.<span class="function">append</span>(<span class="string">"Pensé que era lo mejor"</span>)
+    <span class="variable">razones</span>.<span class="function">append</span>(<span class="string">"Mi orgullo me lo impidió"</span>)
+    <span class="variable">razones</span>.<span class="function">append</span>(<span class="string">"Quería respetar tu espacio"</span>)
+    
+    <span class="keyword">for</span> <span class="variable">razon</span> <span class="keyword">in</span> <span class="variable">razones</span>:
+        <span class="keyword">print</span>(<span class="string">f"• {razon}"</span>)
+    
+    <span class="comment"># La verdad detrás de mi silencio</span>
+    <span class="keyword">print</span>(<span class="string">"\\nYuli, me quedé callado porque:"</span>)
+    <span class="keyword">print</span>(<span class="string">"Sabía que cualquier cosa que dijera"</span>)
+    <span class="keyword">print</span>(<span class="string">"Iba a sonar como excusas"</span>)
+    <span class="keyword">print</span>(<span class="string">"Y no quería ser ese tipo"</span>)
+    <span class="keyword">print</span>(<span class="string">"Que se victimiza"</span>)
+    
+    <span class="comment"># Mi error</span>
+    <span class="keyword">try</span>:
+        <span class="variable">comunicacion</span> = <span class="function">hablar_contigo</span>()
+    <span class="keyword">except</span> <span class="variable">MiedoAlRechazo</span>:
+        <span class="keyword">print</span>(<span class="string">"Preferí callar y aceptar ser el malo"</span>)
+        <span class="keyword">print</span>(<span class="string">"Que arriesgarme a tu rechazo"</span>)
+        <span class="keyword">print</span>(<span class="string">"Pero ahora veo que fue mi error"</span>)
+    
+    <span class="keyword">return</span> <span class="string">"debí_haber_luchado_por_nosotros"</span>
+
+<span class="variable">leccion_aprendida</span> = <span class="function">por_que_calle</span>()
+<span class="keyword">print</span>(<span class="string">f"\\nLección: {leccion_aprendida}"</span>)`
+            },
+            {
+                titulo: "Lo Que Realmente Siento",
+                contenido: `<span class="comment"># Mi verdad sin filtros</span>
+<span class="keyword">class</span> <span class="function">MisVerdaderosSentimientos</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="variable">self</span>):
+        <span class="variable">self.amor</span> = <span class="string">"intacto"</span>
+        <span class="variable">self.dolor</span> = <span class="string">"profundo"</span>
+        <span class="variable">self.esperanza</span> = <span class="string">"frágil pero presente"</span>
+        <span class="variable">self.confusion</span> = <span class="string">"máxima"</span>
+    
+    <span class="keyword">def</span> <span class="function">confesion</span>(<span class="variable">self</span>):
+        <span class="comment"># Lo que nunca te dije</span>
+        <span class="keyword">print</span>(<span class="string">"Yuli, sé que a medio mundo"</span>)
+        <span class="keyword">print</span>(<span class="string">"Le contaste tu versión"</span>)
+        <span class="keyword">print</span>(<span class="string">"Y está bien, era tu derecho"</span>)
+        <span class="keyword">print</span>(<span class="string">"Pero yo elegí callar"</span>)
+        
+        <span class="comment"># Mi perspectiva</span>
+        <span class="keyword">print</span>(<span class="string">"\\nNo porque no tuviera qué decir"</span>)
+        <span class="keyword">print</span>(<span class="string">"Sino porque te respetaba"</span>)
+        <span class="keyword">print</span>(<span class="string">"Aunque eso me convirtiera en el malo"</span>)
+        <span class="keyword">print</span>(<span class="string">"De una historia mal contada"</span>)
+    
+    <span class="keyword">def</span> <span class="function">mi_pregunta</span>(<span class="variable">self</span>):
+        <span class="comment"># Lo que me quita el sueño</span>
+        <span class="keyword">print</span>(<span class="string">"\\nPero dime una cosa:"</span>)
+        <span class="keyword">print</span>(<span class="string">"Si realmente me odias tanto"</span>)
+        <span class="keyword">print</span>(<span class="string">"¿Por qué cuando tomas me buscas?"</span>)
+        <span class="keyword">print</span>(<span class="string">"¿Por qué actúas como si nada hubiera pasado?"</span>)
+        
+        <span class="keyword">print</span>(<span class="string">"\\n¿Será que el alcohol"</span>)
+        <span class="keyword">print</span>(<span class="string">"Te hace ser más honesta?"</span>)
+        <span class="keyword">print</span>(<span class="string">"¿O es que sobria tienes miedo"</span>)
+        <span class="keyword">print</span>(<span class="string">"De admitir lo que sientes?"</span>)
+    
+    <span class="keyword">def</span> <span class="function">mi_propuesta</span>(<span class="variable">self</span>):
+        <span class="keyword">print</span>(<span class="string">"\\nYuli, no te pido que me perdones"</span>)
+        <span class="keyword">print</span>(<span class="string">"Solo te pido que seas honesta"</span>)
+        <span class="keyword">print</span>(<span class="string">"Conmigo y contigo misma"</span>)
+        <span class="keyword">print</span>(<span class="string">"¿Qué es lo que realmente quieres?"</span>)
+        
+        <span class="keyword">if</span> <span class="variable">quieres_intentarlo</span>:
+            <span class="keyword">return</span> <span class="string">"hablemos_sin_alcohol_de_por_medio"</span>
+        <span class="keyword">else</span>:
+            <span class="keyword">return</span> <span class="string">"dejame_ir_de_una_vez"</span>
+
+<span class="variable">mis_sentimientos</span> = <span class="function">MisVerdaderosSentimientos</span>()
+<span class="variable">mis_sentimientos</span>.<span class="function">confesion</span>()
+<span class="variable">mis_sentimientos</span>.<span class="function">mi_pregunta</span>()
+<span class="variable">decision</span> = <span class="variable">mis_sentimientos</span>.<span class="function">mi_propuesta</span>()
+
+<span class="keyword">print</span>(<span class="string">f"\\nEsperando tu respuesta: {decision} 💔"</span>)`
+            },
+            {
+                titulo: "Mensaje Final",
+                contenido: `<span class="comment"># Para Yuliana - Sin rodeos</span>
+<span class="keyword">def</span> <span class="function">mensaje_final</span>():
+    <span class="variable">honestidad</span> = <span class="number">100</span>
+    <span class="variable">vulnerable</span> = <span class="special">True</span>
+    <span class="variable">esperanza</span> = <span class="string">"lo último que muere"</span>
+    
+    <span class="comment"># Sin máscaras, sin juegos</span>
+    <span class="keyword">print</span>(<span class="string">"Yuli, sé que soy el malo de tu historia"</span>)
+    <span class="keyword">print</span>(<span class="string">"Y tal vez merezco serlo"</span>)
+    <span class="keyword">print</span>(<span class="string">"Pero no soy el monstruo que pintas"</span>)
+    <span class="keyword">print</span>(<span class="string">"Solo soy alguien que te amó mal"</span>)
+    
+    <span class="comment"># Mi realidad</span>
+    <span class="keyword">print</span>(<span class="string">"\\nMe duele que me busques tomada"</span>)
+    <span class="keyword">print</span>(<span class="string">"Y me ignores sobria"</span>)
+    <span class="keyword">print</span>(<span class="string">"Porque no sé cuál es la real"</span>)
+    <span class="keyword">print</span>(<span class="string">"La que me odia o la que me extraña"</span>)
+    
+    <span class="comment"># Mi petición</span>
+    <span class="keyword">print</span>(<span class="string">"\\nSi quieres que sea el malo, está bien"</span>)
+    <span class="keyword">print</span>(<span class="string">"
+    Pero deja de jugar conmigo"</span>)
+    <span class="keyword">print</span>(<span class="string">"No me busques cuando tomas"</span>)
+    <span class="keyword">print</span>(<span class="string">"Si cuando estás sobria no existo"</span>)
+    
+    <span class="comment"># Mi última carta</span>
+    <span class="keyword">print</span>(<span class="string">"\\nPorque yo sigo aquí"</span>)
+    <span class="keyword">print</span>(<span class="string">"Esperando que te decidas"</span>)
+    <span class="keyword">print</span>(<span class="string">"Entre odiarme o amarme"</span>)
+    <span class="keyword">print</span>(<span class="string">"Pero ya no puedo estar en el limbo"</span>)
+    
+    <span class="keyword">return</span> <span class="string">"esperando_tu_decision_final"</span>
+
+<span class="comment"># Ejecutar mensaje</span>
+<span class="variable">resultado</span> = <span class="function">mensaje_final</span>()
+<span class="keyword">print</span>(<span class="string">f"\\nStatus: {resultado} 💔"</span>)
+<span class="keyword">print</span>(<span class="string">"\\n# Fin del programa... o tal vez el inicio de algo nuevo? 🤔"</span>)`
+            }
+        ];
+
+        let mensajeActual = 0;
+
+        function generarLineNumbers(lineas) {
+            let lineNumbers = '';
+            for (let i = 1; i <= lineas; i++) {
+                lineNumbers += `<div style="padding: 0 12px;">${i}</div>`;
+            }
+            return lineNumbers;
+        }
+
+        function mostrarMensaje(indice) {
+            const mensaje = mensajes[indice];
+            const codeContent = document.getElementById('codeContent');
+            const lineNumbers = document.getElementById('lineNumbers');
+            
+            // Actualizar contenido
+            codeContent.innerHTML = mensaje.contenido;
+            
+            // Contar líneas y generar números
+            const lineas = mensaje.contenido.split('\n').length;
+            lineNumbers.innerHTML = generarLineNumbers(lineas);
+            
+            // Actualizar título del tab
+            document.querySelector('.tab').innerHTML = `● ${mensaje.titulo.toLowerCase().replace(/\s+/g, '_')}.py`;
+        }
+
+        function siguienteMensaje() {
+            mensajeActual = (mensajeActual + 1) % mensajes.length;
+            mostrarMensaje(mensajeActual);
+        }
+
+        function mensajeAleatorio() {
+            const indiceAleatorio = Math.floor(Math.random() * mensajes.length);
+            mensajeActual = indiceAleatorio;
+            mostrarMensaje(mensajeActual);
+        }
+
+        function copiarMensaje() {
+            const contenido = mensajes[mensajeActual].contenido;
+            // Limpiar HTML para copiar solo el texto
+            const texto = contenido.replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            
+            navigator.clipboard.writeText(texto).then(() => {
+                const btn = event.target;
+                const textoOriginal = btn.innerHTML;
+                btn.innerHTML = '✅ Copiado!';
+                btn.style.background = 'linear-gradient(145deg, #238636, #2ea043)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = textoOriginal;
+                    btn.style.background = 'linear-gradient(145deg, #388bfd, #4dabf7)';
+                }, 2000);
+            }).catch(() => {
+                alert('No se pudo copiar. Selecciona el texto manualmente.');
+            });
+        }
+
+        // Inicializar con el primer mensaje
+        mostrarMensaje(0);
+
+        // Efecto de escritura opcional (descomenta si lo quieres)
+        /*
+        function efectoEscritura() {
+            const codeContent = document.getElementById('codeContent');
+            const texto = mensajes[mensajeActual].contenido;
+            codeContent.innerHTML = '';
+            
+            let i = 0;
+            const intervalo = setInterval(() => {
+                codeContent.innerHTML = texto.substring(0, i);
+                i++;
+                if (i > texto.length) {
+                    clearInterval(intervalo);
+                }
+            }, 50);
+        }
+        */
+    </script>
+</body>
+</html>
